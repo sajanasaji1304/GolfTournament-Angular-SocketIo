@@ -1,10 +1,14 @@
-<table mat-table  [dataSource]="dataSource" matSort class="mat-elevation-z8">
+<div class="heading">
+  <h2>Golf Tournament Players</h2>
+</div>
 
+<table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
   <ng-container matColumnDef="First">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> FirstName </th>
     <td mat-cell *matCellDef="let element"> {{ element.First }} </td>
   </ng-container>
 
+  
   <ng-container matColumnDef="Last">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> LastName </th>
     <td mat-cell *matCellDef="let element"> {{ element.Last }} </td>

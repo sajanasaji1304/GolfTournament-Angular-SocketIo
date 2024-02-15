@@ -1,7 +1,7 @@
-import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, NgZone} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SocketService } from './service/socket.service';
-import { EMPTY, Subject, concat, concatMap, delay, interval, merge, mergeMap, of, repeat, repeatWhen, switchMap, take, takeUntil, timer } from 'rxjs';
+import { EMPTY, Subject,mergeMap, repeat, takeUntil, timer } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
@@ -13,7 +13,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
   styleUrl: './app.component.css',
   providers:[SocketService]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements AfterViewInit {
   socketData: any;
   dataUpdates: any[] = [];
   firstDataReceived = false;
@@ -91,7 +91,7 @@ export class AppComponent implements OnInit {
 
   constructor(private socketService: SocketService, private zone: NgZone,private cdr: ChangeDetectorRef) {}
 
-  ngOnInit() {
+  ngAfterViewInit() {
     this.zone.runOutsideAngular(() => {
     this.getData()    
     })
@@ -102,22 +102,19 @@ getData() {
   .pipe(
     takeUntil(this.unsubscribe$),
     mergeMap(() => {
-      console.log('Connecting socket...');
       this.socketService.connect();
       return this.socketService.onDataUpdate().pipe(
         takeUntil(timer(10000))
       );
     }),
     mergeMap(data => {
-      // this.zone.run(() => {
+      this.zone.run(() => {
         this.socketData = data;
         this.dataUpdates.unshift(data);
         this.dataSource = new MatTableDataSource(this.dataUpdates);
-        console.log(this.dataUpdates);
         this.firstDataReceived = true;
         this.cdr.detectChanges();
-      // });
-      console.log('Disconnecting socket...');
+      });
       this.socketService.disconnect();
       return EMPTY;
     }),
