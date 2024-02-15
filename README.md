@@ -1,5 +1,9 @@
 # GolfTournament
 
+
+![Screenshot 2024-02-15 at 17 37 13](https://github.com/sajanasaji1304/GolfTournament-Angular-SocketIo/assets/75980819/d14f50e2-00ec-44e1-9783-0a9e73d5d335)
+
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.1.1.
 
 ## Development server
