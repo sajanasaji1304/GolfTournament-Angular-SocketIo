@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, NgZone} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnInit} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SocketService } from './service/socket.service';
 import { EMPTY, Subject,mergeMap, repeat, takeUntil, timer } from 'rxjs';
@@ -13,7 +13,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
   styleUrl: './app.component.css',
   providers:[SocketService]
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit {
   socketData: any;
   dataUpdates: any[] = [];
   firstDataReceived = false;
@@ -91,9 +91,9 @@ export class AppComponent implements AfterViewInit {
 
   constructor(private socketService: SocketService, private zone: NgZone,private cdr: ChangeDetectorRef) {}
 
-  ngAfterViewInit() {
+  ngOnInit() {
     this.zone.runOutsideAngular(() => {
-    this.getData()    
+    this.getData()  
     })
 } 
 
