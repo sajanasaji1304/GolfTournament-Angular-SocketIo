@@ -103,22 +103,18 @@ getData() {
       takeUntil(this.unsubscribe$),
       switchMap(() => { 
         this.socketService.connect();
-        console.log('Connected');
 
         return this.socketService.onDataUpdate().pipe(
           bufferTime(10000),
           takeUntil(timer(11000)),
           tap(dataBuffer => {
-            console.log('Data received:', dataBuffer);
             this.dataUpdates.unshift(...dataBuffer);
-            console.log(this.dataUpdates);
             this.firstDataReceived = true;
             this.cdr.detectChanges();
           })
         );
       }),
       tap(() => {
-        console.log('Disconnected');
         this.socketService.disconnect();
       }),
       repeat()
