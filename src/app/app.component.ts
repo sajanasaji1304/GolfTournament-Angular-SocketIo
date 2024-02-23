@@ -109,6 +109,7 @@ getData() {
           takeUntil(timer(11000)),
           tap(dataBuffer => {
             this.dataUpdates.unshift(...dataBuffer);
+            this.dataSource = new MatTableDataSource(this.dataUpdates);
             this.firstDataReceived = true;
             this.cdr.detectChanges();
           })
