@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnInit} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SocketService } from './service/socket.service';
-import { EMPTY, Subject,mergeMap, repeat, takeUntil, timer } from 'rxjs';
+import {  Subject,bufferTime,interval,repeat,  switchMap, takeUntil, tap, timer } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
@@ -98,31 +98,35 @@ export class AppComponent implements OnInit {
 } 
 
 getData() {
-  timer(0, 10000)
-  .pipe(
-    takeUntil(this.unsubscribe$),
-    mergeMap(() => {
-      this.socketService.connect();
-      return this.socketService.onDataUpdate().pipe(
-        takeUntil(timer(10000))
-      );
-    }),
-    mergeMap(data => {
-      this.zone.run(() => {
-        this.socketData = data;
-        this.dataUpdates.unshift(data);
-        this.dataSource = new MatTableDataSource(this.dataUpdates);
-        this.firstDataReceived = true;
-        this.cdr.detectChanges();
-      });
-      this.socketService.disconnect();
-      return EMPTY;
-    }),
-    repeat()
-  )
-  .subscribe();
-}
+  interval(11000) 
+    .pipe(
+      takeUntil(this.unsubscribe$),
+      switchMap(() => { 
+        this.socketService.connect();
+        console.log('Connected');
 
+        return this.socketService.onDataUpdate().pipe(
+          bufferTime(10000),
+          takeUntil(timer(11000)),
+          tap(dataBuffer => {
+            console.log('Data received:', dataBuffer);
+            this.dataUpdates.unshift(...dataBuffer);
+            console.log(this.dataUpdates);
+            this.firstDataReceived = true;
+            this.cdr.detectChanges();
+          })
+        );
+      }),
+      tap(() => {
+        console.log('Disconnected');
+        this.socketService.disconnect();
+      }),
+      repeat()
+    )
+    .subscribe(() => {
+    });
+}
+  
 ngOnDestroy() {
   this.unsubscribe$.next();
   this.unsubscribe$.complete();
