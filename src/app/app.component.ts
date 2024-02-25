@@ -98,30 +98,31 @@ export class AppComponent implements OnInit {
 } 
 
 getData() {
-  interval(11000) 
+  interval(10000) 
     .pipe(
-      takeUntil(this.unsubscribe$),
+      takeUntil(this.unsubscribe$), 
       switchMap(() => { 
+        console.log('Inside switchMap');
         this.socketService.connect();
+        console.log('Connected');
 
         return this.socketService.onDataUpdate().pipe(
-          bufferTime(10000),
-          takeUntil(timer(11000)),
-          tap(dataBuffer => {
-            this.dataUpdates.unshift(...dataBuffer);
+          takeUntil(interval(10000)), 
+          tap(data => { 
+            console.log('Data received:', data);
+            this.dataUpdates.unshift(data);
             this.dataSource = new MatTableDataSource(this.dataUpdates);
             this.firstDataReceived = true;
             this.cdr.detectChanges();
           })
         );
       }),
-      tap(() => {
+      tap(() => { 
+        console.log('Subscription to onDataUpdate stopped after 10 seconds');
         this.socketService.disconnect();
       }),
-      repeat()
     )
-    .subscribe(() => {
-    });
+    .subscribe(() => {}); 
 }
   
 ngOnDestroy() {
